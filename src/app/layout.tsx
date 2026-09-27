@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
+import { getCurrentUser } from '@/lib/session';
 import './globals.css';
 
 const inter = Inter({
@@ -14,19 +17,29 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'FixItNow',
-  description: 'Book trusted home service technicians',
+  title: {
+    default: 'FixItNow - Book trusted home service technicians',
+    template: '%s | FixItNow',
+  },
+  description:
+    'Book plumbers, electricians, cleaners and AC technicians near you. Compare ratings, pick a time slot and pay online.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en"
       className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <SiteHeader user={user} />
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
+      </body>
     </html>
   );
 }
