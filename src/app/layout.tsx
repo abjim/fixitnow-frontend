@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Toaster } from '@/components/ui/sonner';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { getCurrentUser } from '@/lib/session';
@@ -39,6 +40,7 @@ export default async function RootLayout({
         <SiteHeader user={user} />
         <div className="flex-1">{children}</div>
         <SiteFooter />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
