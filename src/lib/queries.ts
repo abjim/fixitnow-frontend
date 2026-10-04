@@ -1,6 +1,8 @@
 import { api } from '@/lib/api';
 import type {
+  Booking,
   Category,
+  Payment,
   Review,
   Service,
   TechnicianCard,
@@ -62,4 +64,22 @@ export function getTechnicianReviews(technicianId: string, query: Query = {}) {
     `/api/reviews/technician/${technicianId}${toSearch(query)}`,
     { auth: false, tags: [`technician-${technicianId}`] },
   );
+}
+
+/* ---------- customer ---------- */
+
+export function getMyBookings(query: Query = {}) {
+  return api<Booking[]>(`/api/bookings${toSearch(query)}`, { tags: ['bookings'] });
+}
+
+export function getBooking(id: string) {
+  return api<Booking>(`/api/bookings/${id}`, { tags: ['bookings'] });
+}
+
+export function getMyPayments(query: Query = {}) {
+  return api<Payment[]>(`/api/payments${toSearch(query)}`, { tags: ['payments'] });
+}
+
+export function getMyReviews() {
+  return api<Review[]>('/api/reviews/my-reviews', { tags: ['reviews'] });
 }

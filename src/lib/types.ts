@@ -1,6 +1,18 @@
 export type Role = 'CUSTOMER' | 'TECHNICIAN' | 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'BANNED';
 
+export type BookingStatus =
+  | 'REQUESTED'
+  | 'ACCEPTED'
+  | 'DECLINED'
+  | 'PAID'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED';
+export type PaymentProvider = 'STRIPE' | 'SSLCOMMERZ';
+
 export type User = {
   id: string;
   name: string;
@@ -94,5 +106,57 @@ export type TechnicianProfile = {
   availabilities: Availability[];
   reviews: Review[];
   _count?: { bookings: number; reviews: number };
+};
+
+export type Booking = {
+  id: string;
+  customerId: string;
+  technicianId: string;
+  serviceId: string;
+  scheduledAt: string;
+  address: string;
+  note: string | null;
+  price: number;
+  status: BookingStatus;
+  cancelReason: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  service: {
+    id: string;
+    title: string;
+    price: number;
+    durationMinutes: number;
+    category: Pick<Category, 'id' | 'name' | 'slug'>;
+  };
+  technician: {
+    id: string;
+    userId: string;
+    city: string;
+    avgRating: number;
+    user: { id: string; name: string; phone: string | null; email: string };
+  };
+  customer: { id: string; name: string; phone: string | null; email: string };
+  payment: Payment | null;
+  review: Review | null;
+};
+
+export type Payment = {
+  id: string;
+  transactionId: string;
+  bookingId: string;
+  amount: number;
+  currency: string;
+  provider: PaymentProvider;
+  status: PaymentStatus;
+  paidAt: string | null;
+  failReason: string | null;
+  createdAt: string;
+  booking?: {
+    id: string;
+    status: BookingStatus;
+    scheduledAt: string;
+    service: { id: string; title: string };
+    technician: { id: string; user: { id: string; name: string } };
+  };
 };
 
