@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   Star,
+  UserRound,
   Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,10 @@ const menus: Record<Role, Item[]> = {
   ],
   TECHNICIAN: [
     { href: '/dashboard/technician', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/technician/bookings', label: 'Job requests', icon: CalendarRange },
+    { href: '/dashboard/technician/services', label: 'My services', icon: Wrench },
+    { href: '/dashboard/technician/availability', label: 'Availability', icon: CalendarRange },
+    { href: '/dashboard/technician/profile', label: 'Profile', icon: UserRound },
   ],
   ADMIN: [
     { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },

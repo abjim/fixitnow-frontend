@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import type {
+  Availability,
   Booking,
   Category,
   Payment,
@@ -82,4 +83,28 @@ export function getMyPayments(query: Query = {}) {
 
 export function getMyReviews() {
   return api<Review[]>('/api/reviews/my-reviews', { tags: ['reviews'] });
+}
+
+/* ---------- technician ---------- */
+
+export function getTechnicianProfile() {
+  return api<TechnicianProfile>('/api/technician/profile', {
+    tags: ['technician-profile'],
+  });
+}
+
+export function getMyAvailability() {
+  return api<Availability[]>('/api/technician/availability', {
+    tags: ['availability'],
+  });
+}
+
+export function getMyServices() {
+  return api<Service[]>('/api/technician/services', { tags: ['my-services'] });
+}
+
+export function getTechnicianBookings(query: Query = {}) {
+  return api<Booking[]>(`/api/technician/bookings${toSearch(query)}`, {
+    tags: ['bookings'],
+  });
 }
