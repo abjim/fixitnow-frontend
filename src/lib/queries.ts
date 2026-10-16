@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import type {
+  AdminStats,
   Availability,
   Booking,
   Category,
@@ -8,6 +9,7 @@ import type {
   Service,
   TechnicianCard,
   TechnicianProfile,
+  User,
 } from '@/lib/types';
 
 type Query = Record<string, string | number | undefined>;
@@ -106,5 +108,33 @@ export function getMyServices() {
 export function getTechnicianBookings(query: Query = {}) {
   return api<Booking[]>(`/api/technician/bookings${toSearch(query)}`, {
     tags: ['bookings'],
+  });
+}
+
+/* ---------- admin ---------- */
+
+export function getAdminStats() {
+  return api<AdminStats>('/api/admin/stats', { tags: ['admin-stats'] });
+}
+
+export function getAdminUsers(query: Query = {}) {
+  return api<User[]>(`/api/admin/users${toSearch(query)}`, { tags: ['users'] });
+}
+
+export function getAdminBookings(query: Query = {}) {
+  return api<Booking[]>(`/api/admin/bookings${toSearch(query)}`, {
+    tags: ['bookings'],
+  });
+}
+
+export function getAdminPayments(query: Query = {}) {
+  return api<Payment[]>(`/api/admin/payments${toSearch(query)}`, {
+    tags: ['payments'],
+  });
+}
+
+export function getAdminCategories(query: Query = {}) {
+  return api<Category[]>(`/api/admin/categories${toSearch(query)}`, {
+    tags: ['categories'],
   });
 }

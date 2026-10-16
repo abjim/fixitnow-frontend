@@ -160,3 +160,17 @@ export type Payment = {
   };
 };
 
+export type AdminStats = {
+  users: { customers: number; technicians: number; banned: number };
+  catalog: { categories: number; services: number };
+  bookings: { total: number; byStatus: { status: BookingStatus; count: number }[] };
+  revenue: { totalPaid: number; paidCount: number; currency: string };
+  recentBookings: {
+    id: string;
+    price: number;
+    status: BookingStatus;
+    createdAt: string;
+    customer: { id: string; name: string };
+    service: { id: string; title: string };
+  }[];
+};

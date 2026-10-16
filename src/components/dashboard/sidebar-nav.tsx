@@ -6,12 +6,15 @@ import { useState } from 'react';
 import {
   CalendarRange,
   CreditCard,
+  FolderTree,
   Home,
   LayoutDashboard,
   LogOut,
   Menu,
+  Receipt,
   Star,
   UserRound,
+  Users,
   Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,6 +41,10 @@ const menus: Record<Role, Item[]> = {
   ],
   ADMIN: [
     { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/admin/users', label: 'Users', icon: Users },
+    { href: '/dashboard/admin/bookings', label: 'Bookings', icon: CalendarRange },
+    { href: '/dashboard/admin/payments', label: 'Payments', icon: Receipt },
+    { href: '/dashboard/admin/categories', label: 'Categories', icon: FolderTree },
   ],
 };
 
