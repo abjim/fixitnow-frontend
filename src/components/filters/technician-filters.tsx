@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useRef, useTransition } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,7 +18,8 @@ export function TechnicianFilters({ cities }: { cities: string[] }) {
   const router = useRouter();
   const params = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(params.get('search') ?? '');
+  const search = params.get('search') ?? '';
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const apply = (next: Record<string, string | undefined>) => {
     const query = new URLSearchParams(params.toString());
@@ -30,13 +31,9 @@ export function TechnicianFilters({ cities }: { cities: string[] }) {
     startTransition(() => router.push(`/technicians?${query.toString()}`));
   };
 
-  useEffect(() => {
-    setSearch(params.get('search') ?? '');
-  }, [params]);
-
   const onSearch = (value: string) => {
-    setSearch(value);
-    apply({ search: value });
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => apply({ search: value }), 450);
   };
 
   return (
@@ -44,7 +41,8 @@ export function TechnicianFilters({ cities }: { cities: string[] }) {
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          value={search}
+          key={search}
+          defaultValue={search}
           onChange={(e) => onSearch(e.target.value)}
           placeholder="Search by name, area or skill..."
           className="pl-9"

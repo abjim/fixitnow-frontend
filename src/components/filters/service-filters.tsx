@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useRef, useTransition } from 'react';
 import { Loader2, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +37,8 @@ export function ServiceFilters({
   const router = useRouter();
   const params = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(params.get('search') ?? '');
+  const search = params.get('search') ?? '';
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const apply = (next: Record<string, string | undefined>) => {
     const query = new URLSearchParams(params.toString());
@@ -51,13 +52,10 @@ export function ServiceFilters({
     startTransition(() => router.push(`/services?${query.toString()}`));
   };
 
-  useEffect(() => {
-    setSearch(params.get('search') ?? '');
-  }, [params]);
-
+  // debounce, otherwise every keystroke pushes a new url
   const onSearch = (value: string) => {
-    setSearch(value);
-    apply({ search: value });
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => apply({ search: value }), 450);
   };
 
   const sortValue = `${params.get('sortBy') ?? 'rating'}-${params.get('sortOrder') ?? 'desc'}`;
@@ -153,7 +151,8 @@ export function ServiceFilters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            value={search}
+            key={search}
+            defaultValue={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search for a service..."
             className="pl-9"
