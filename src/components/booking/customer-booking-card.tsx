@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition } from 'react';
 import { CalendarDays, CreditCard, Loader2, MapPin, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -22,37 +21,30 @@ import { cancelBookingAction } from '@/actions/booking';
 import { createReviewAction } from '@/actions/review';
 import { cn } from '@/lib/utils';
 import { dateTime, taka } from '@/lib/format';
-import type { FormState } from '@/lib/forms';
 import type { Booking } from '@/lib/types';
 
 const cancellable = ['REQUESTED', 'ACCEPTED', 'PAID'];
 
-function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
-      {pending ? pendingLabel : label}
-    </Button>
-  );
-}
-
 function ReviewDialog({ booking }: { booking: Booking }) {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
-  const [state, formAction] = useActionState<FormState, FormData>(
-    createReviewAction,
-    {},
-  );
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (state.ok) {
-      toast.success(state.message ?? 'Review submitted');
-      setOpen(false);
-    } else if (state.message) {
-      toast.error(state.message);
-    }
-  }, [state]);
+  const submit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await createReviewAction({}, formData);
+
+      if (result.ok) {
+        toast.success(result.message ?? 'Review submitted');
+        setOpen(false);
+        return;
+      }
+
+      setErrors(result.errors ?? {});
+      if (result.message) toast.error(result.message);
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -69,7 +61,7 @@ function ReviewDialog({ booking }: { booking: Booking }) {
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="space-y-4">
+        <form action={submit} className="space-y-4">
           <input type="hidden" name="bookingId" value={booking.id} />
           <input type="hidden" name="rating" value={rating} />
 
@@ -94,8 +86,8 @@ function ReviewDialog({ booking }: { booking: Booking }) {
                 </button>
               ))}
             </div>
-            {state.errors?.rating && (
-              <p className="text-sm text-destructive">{state.errors.rating}</p>
+            {errors.rating && (
+              <p className="text-sm text-destructive">{errors.rating}</p>
             )}
           </div>
 
@@ -110,7 +102,10 @@ function ReviewDialog({ booking }: { booking: Booking }) {
           </div>
 
           <DialogFooter>
-            <SubmitButton label="Submit review" pendingLabel="Submitting..." />
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              {isPending ? 'Submitting...' : 'Submit review'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

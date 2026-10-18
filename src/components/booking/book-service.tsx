@@ -98,8 +98,6 @@ export function BookService({
   useEffect(() => {
     if (state.ok) {
       toast.success(state.message ?? 'Booking request sent');
-      setDate('');
-      setTime('');
       router.push('/dashboard/customer/bookings');
     } else if (state.message) {
       toast.error(state.message);

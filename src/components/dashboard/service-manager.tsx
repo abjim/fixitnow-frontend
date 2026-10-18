@@ -1,7 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition } from 'react';
 import { Loader2, Pencil, Plus, Trash2, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -27,18 +26,7 @@ import {
 import { EmptyState } from '@/components/empty-state';
 import { deleteServiceAction, saveServiceAction } from '@/actions/technician';
 import { duration, taka } from '@/lib/format';
-import type { FormState } from '@/lib/forms';
 import type { Category, Service } from '@/lib/types';
-
-function SaveButton({ editing }: { editing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
-      {editing ? 'Save changes' : 'Create service'}
-    </Button>
-  );
-}
 
 export function ServiceManager({
   services,
@@ -50,30 +38,35 @@ export function ServiceManager({
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [categoryId, setCategoryId] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDeleting, startDelete] = useTransition();
+  const [isSaving, startSave] = useTransition();
 
-  const [state, formAction] = useActionState<FormState, FormData>(
-    saveServiceAction,
-    {},
-  );
+  const save = (formData: FormData) => {
+    startSave(async () => {
+      const result = await saveServiceAction({}, formData);
 
-  useEffect(() => {
-    if (state.ok) {
-      toast.success(state.message ?? 'Saved');
-      setOpen(false);
-      setEditing(null);
-    } else if (state.message) {
-      toast.error(state.message);
-    }
-  }, [state]);
+      if (result.ok) {
+        toast.success(result.message ?? 'Saved');
+        setOpen(false);
+        setEditing(null);
+        return;
+      }
+
+      setErrors(result.errors ?? {});
+      if (result.message) toast.error(result.message);
+    });
+  };
 
   const openCreate = () => {
+    setErrors({});
     setEditing(null);
     setCategoryId(categories[0]?.id ?? '');
     setOpen(true);
   };
 
   const openEdit = (service: Service) => {
+    setErrors({});
     setEditing(service);
     setCategoryId(service.categoryId);
     setOpen(true);
@@ -159,7 +152,7 @@ export function ServiceManager({
             </DialogDescription>
           </DialogHeader>
 
-          <form action={formAction} className="space-y-4">
+          <form action={save} className="space-y-4">
             <input type="hidden" name="id" value={editing?.id ?? ''} />
             <input type="hidden" name="categoryId" value={categoryId} />
 
@@ -172,8 +165,8 @@ export function ServiceManager({
                 placeholder="Water Pipe Leak Repair"
                 required
               />
-              {state.errors?.title && (
-                <p className="text-sm text-destructive">{state.errors?.title}</p>
+              {errors.title && (
+                <p className="text-sm text-destructive">{errors.title}</p>
               )}
             </div>
 
@@ -187,9 +180,9 @@ export function ServiceManager({
                 placeholder="What exactly do you do in this service?"
                 required
               />
-              {state.errors?.description && (
+              {errors.description && (
                 <p className="text-sm text-destructive">
-                  {state.errors?.description}
+                  {errors.description}
                 </p>
               )}
             </div>
@@ -208,9 +201,9 @@ export function ServiceManager({
                   ))}
                 </SelectContent>
               </Select>
-              {state.errors?.categoryId && (
+              {errors.categoryId && (
                 <p className="text-sm text-destructive">
-                  {state.errors?.categoryId}
+                  {errors.categoryId}
                 </p>
               )}
             </div>
@@ -227,8 +220,8 @@ export function ServiceManager({
                   placeholder="900"
                   required
                 />
-                {state.errors?.price && (
-                  <p className="text-sm text-destructive">{state.errors?.price}</p>
+                {errors.price && (
+                  <p className="text-sm text-destructive">{errors.price}</p>
                 )}
               </div>
 
@@ -244,9 +237,9 @@ export function ServiceManager({
                   defaultValue={editing?.durationMinutes ?? 60}
                   required
                 />
-                {state.errors?.durationMinutes && (
+                {errors.durationMinutes && (
                   <p className="text-sm text-destructive">
-                    {state.errors?.durationMinutes}
+                    {errors.durationMinutes}
                   </p>
                 )}
               </div>
@@ -256,7 +249,10 @@ export function ServiceManager({
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <SaveButton editing={Boolean(editing)} />
+              <Button type="submit" disabled={isSaving}>
+                {isSaving && <Loader2 className="size-4 animate-spin" />}
+                {editing ? 'Save changes' : 'Create service'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
