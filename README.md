@@ -6,6 +6,7 @@ both are connected.
 Customer books a technician, technician accepts the job, then customer pays with SSLCommerz
 or Stripe. Admin manages users and categories.
 
+- Live site: https://fixitnow-frontend-tau.vercel.app
 - Backend API: https://fixitnow-backend-two.vercel.app
 - Backend repo: https://github.com/abjim/fixitnow-backend
 
