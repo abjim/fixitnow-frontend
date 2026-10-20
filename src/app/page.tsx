@@ -8,6 +8,7 @@ import {
   CreditCard,
   Search,
   ShieldCheck,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -95,7 +96,11 @@ function Hero() {
             <p className="text-xs text-muted-foreground">Average rating</p>
             <div className="mt-0.5 flex items-center gap-2">
               <span className="font-heading text-2xl font-bold">4.8</span>
-              <Rating value={4.8} />
+              <span className="flex">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </span>
             </div>
           </div>
         </div>
